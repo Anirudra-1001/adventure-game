@@ -8,23 +8,11 @@ let highScore = localStorage.getItem("highScore") || 0;
 
 document.getElementById("highScore").innerText = highScore;
 
-const playerImg = new Image();
-playerImg.src = "https://i.imgur.com/6X12UGp.png";
-
-const enemyImg = new Image();
-enemyImg.src = "https://i.imgur.com/Zv6fY5G.png";
-
-const treasureImg = new Image();
-treasureImg.src = "https://i.imgur.com/9Xn4XkT.png";
-
-const bgImg = new Image();
-bgImg.src = "https://i.imgur.com/qIufhof.jpg";
-
 let player = {
   x: 50,
   y: 200,
-  width: 50,
-  height: 50,
+  width: 40,
+  height: 40,
   speed: 5
 };
 
@@ -36,10 +24,10 @@ function createEnemies(num) {
   enemies = [];
   for (let i = 0; i < num; i++) {
     enemies.push({
-      x: Math.random() * 700,
-      y: Math.random() * 400,
-      width: 50,
-      height: 50,
+      x: Math.random() * 750,
+      y: Math.random() * 450,
+      width: 40,
+      height: 40,
       speed: 2 + level
     });
   }
@@ -51,8 +39,8 @@ function createTreasures(num) {
     treasures.push({
       x: Math.random() * 750,
       y: Math.random() * 450,
-      width: 40,
-      height: 40
+      width: 30,
+      height: 30
     });
   }
 }
@@ -61,8 +49,8 @@ function createPowerUp() {
   powerUps = [{
     x: Math.random() * 750,
     y: Math.random() * 450,
-    width: 40,
-    height: 40
+    width: 30,
+    height: 30
   }];
 }
 
@@ -88,15 +76,22 @@ function collision(a, b) {
 
 function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
-  ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+  // Background
+  ctx.fillStyle = "#0a1f2e";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Player
+  ctx.fillStyle = "lime";
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+
+  // Enemies
   enemies.forEach(enemy => {
     enemy.y += enemy.speed;
     if (enemy.y > canvas.height) enemy.y = 0;
 
-    ctx.drawImage(enemyImg, enemy.x, enemy.y, enemy.width, enemy.height);
+    ctx.fillStyle = "red";
+    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
 
     if (collision(player, enemy)) {
       health -= 1;
@@ -104,8 +99,10 @@ function update() {
     }
   });
 
+  // Treasures
   treasures.forEach((treasure, index) => {
-    ctx.drawImage(treasureImg, treasure.x, treasure.y, treasure.width, treasure.height);
+    ctx.fillStyle = "gold";
+    ctx.fillRect(treasure.x, treasure.y, treasure.width, treasure.height);
 
     if (collision(player, treasure)) {
       score += 10;
@@ -114,6 +111,7 @@ function update() {
     }
   });
 
+  // PowerUp
   powerUps.forEach((p, index) => {
     ctx.fillStyle = "cyan";
     ctx.fillRect(p.x, p.y, p.width, p.height);
@@ -125,6 +123,7 @@ function update() {
     }
   });
 
+  // Level up
   if (treasures.length === 0) {
     level++;
     document.getElementById("level").innerText = level;
@@ -133,6 +132,7 @@ function update() {
     createPowerUp();
   }
 
+  // Game Over
   if (health <= 0) {
     if (score > highScore) {
       localStorage.setItem("highScore", score);
